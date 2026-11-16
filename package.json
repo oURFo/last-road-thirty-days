@@ -1,0 +1,6 @@
+{
+  "name":"last-road-thirty-days",
+  "version":"0.1.0",
+  "private":true,
+  "scripts":{"start":"node serve.cjs","test":"node tests.cjs"}
+}

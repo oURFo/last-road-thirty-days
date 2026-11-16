@@ -1,0 +1,16 @@
+# Local hosting identity and credentials do not belong in the GitHub project.
+.openai/
+.sites-*/
+.env
+.env.*
+*.pem
+*.key
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+
+# Reproducible integration output.
+simulation-results.json
+winning-simulation.json

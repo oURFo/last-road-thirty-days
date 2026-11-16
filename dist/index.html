@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101c1b"><meta name="description" content="末路三十日，一款有道路行駛、99 位求生者與永久綁定載具的單人生存遊戲。"><title>末路三十日 · LAST ROAD</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<div class="grain"></div>
+<main id="shell">
+ <header class="masthead"><a class="brand" href="#" id="brand">▰ <strong>末路三十日</strong><span>LAST ROAD / 30</span></a><div class="head-right"><span class="signal-dot"></span><span id="connection">第 07 號公路空間</span><button class="icon-button" id="menuBtn" title="遊戲說明與存檔">☰</button></div></header>
+ <section id="welcome">
+  <div class="welcome-copy"><div class="eyebrow">A ROAD. A VEHICLE. ONE LAST CHANCE.</div><h1>路的盡頭，<br>是下一個<span>黎明。</span></h1><p>一百個求生者。各自的公路。<br>你唯一要做的，是在這裡活過三十天。</p><div class="intro-rules"><span>01 <b>載具終身綁定</b></span><span>02 <b>每日里程達標</b></span><span>03 <b>禁止回頭</b></span></div><button class="primary big" id="newBtn">進入公路空間 <span>↗</span></button><button class="quiet" id="continueBtn" hidden>繼續上次的旅程 →</button><div class="intro-note">單人遊戲 · 99 名 NPC · 自動存檔<br>運行 60 秒＝一天；決策與暫停不計時。</div></div>
+  <div class="welcome-art"><canvas id="introCanvas" aria-label="荒野公路與求生車輛"></canvas><div class="map-label">SECTOR 07<br><span>25°08′N / UNKNOWN</span></div><div class="art-bottom"><span>前方仍有道路</span><span>KEEP MOVING →</span></div></div>
+ </section>
+ <section id="game" hidden>
+  <div class="day-strip"><div><span class="eyebrow">SURVIVAL DAY</span><strong id="dayText">01 <small>/ 30</small></strong></div><div class="daily-main"><div><span id="quotaText">今日里程</span><b id="distanceText"></b></div><div class="progress"><i id="distanceFill"></i></div><span id="deadlineText"></span></div><div class="weather-head"><b id="weatherText"></b><span id="timeText"></span><small id="aliveText"></small></div></div>
+  <div class="play-layout">
+   <aside class="left-col"><div class="panel vehicle-panel"><div class="section-label">YOUR ONLY HOME <span id="tierBadge"></span></div><h2 id="vehicleName"></h2><div class="muted" id="vehicleDetails"></div><div class="vehicle-stats" id="vehicleStats"></div><button class="outline full" id="upgradeBtn">查看晉階路線 ↗</button></div><div class="panel body-panel"><div class="section-label">生存狀態 <span id="exposureText"></span></div><div id="vitals"></div><button class="quiet full" id="quickFood">使用食物與飲水 →</button></div><div class="panel forecast-panel"><div class="section-label">CENTRAL BROADCAST</div><p id="forecast"></p><small>活過第 30 天結算即勝利。<br>未達里程、健康耗盡或逆行皆會死亡。</small></div></aside>
+   <section class="road-col"><div class="road-window"><canvas id="roadCanvas" aria-label="載具沿公路前進，兩側出現建築與事件"></canvas><div class="road-top"><span class="road-chip" id="roadState">● 已停車</span><span class="road-chip" id="sectorText">ROUTE 07</span></div><div class="road-bottom"><span id="nextText"></span><b id="speedText"></b></div><div id="workOverlay" hidden><div class="eyebrow">WORK IN PROGRESS</div><b id="workName"></b><div class="progress"><i id="workFill"></i></div><small id="workTime"></small></div></div><div class="controls"><button class="primary drive" id="driveBtn">▶ 前進</button><button class="outline" id="restBtn">☾ 休息</button><select id="speedSelect" aria-label="行駛速度"><option value="0.75">節能巡航</option><option value="1" selected>正常巡航</option><option value="1.2">高速前進</option></select><button class="icon-button" id="reverseBtn" title="逆行（致命）">↶</button></div><div class="route-section"><div class="section-label">前方道路 <span>不回頭 · 一直向前</span></div><div id="routeCards"></div></div></section>
+   <aside class="right-col"><div class="panel comms"><div class="section-label">區域通訊 <span class="live">LIVE</span></div><div class="comms-intro">每條路都孤獨，但你不是唯一的人。</div><div id="chatPreview"></div><button class="quiet full" data-pane="society">打開區域頻道 ↗</button></div><div class="panel log-panel"><div class="section-label">旅途紀錄 <span>LOG</span></div><div id="logPreview"></div></div></aside>
+  </div>
+  <nav class="bottom-nav" aria-label="遊戲管理"><button data-pane="bag">▧ <span>背包</span><small id="bagCount"></small></button><button data-pane="craft">⚒ <span>製作</span></button><button data-pane="market">⇄ <span>交易所</span><small id="creditsNav"></small></button><button data-pane="society">◎ <span>求生者</span></button><button data-pane="system">✧ <span>特殊系統</span></button><button data-pane="journal">≡ <span>紀錄</span></button></nav>
+ </section>
+</main>
+<div id="modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><div><div class="eyebrow" id="modalTag">SECTOR 07</div><h2 id="modalTitle"></h2></div><button class="icon-button" id="closeModal" aria-label="關閉">✕</button></div><div id="modalBody"></div></section></div>
+<div id="toast" role="status" hidden></div>
+<input id="importFile" type="file" accept="application/json" hidden>
+<script src="data.js"></script><script src="engine.js"></script><script src="app.js"></script>
+</body></html>
