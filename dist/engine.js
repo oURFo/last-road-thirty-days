@@ -12,6 +12,7 @@ class Game{
  pick(a){return a[Math.floor(this.random()*a.length)];}
  roll(p){return this.random()<p;}
  get player(){return this.s.actors[0];}
+ visibleRoute(){return this.s.route.filter(n=>n.km>=this.player.km&&n.km-this.player.km<=3);}
  get day(){return Math.floor(this.s.minute/1440)+1;}
  get night(){const h=(6+this.s.minute/60)%24;return h>=18||h<6;}
  get quota(){return this.day<=3?60:this.day<=7?90:this.day<=14?120:this.day<=21?150:180;}
@@ -200,9 +201,9 @@ class Game{
   if(sy.used>=[1,3,1,2,0,1,1,2,0,2,0,0,1,2,1,0,1][id]+L-1)return {ok:false,text:'今日能力次數已用完。'};
   const complete=text=>{sy.used++;this.systemXp();this.log(text,'rare');return {ok:true,text};};
   if(id===0){if(sy.signed)return {ok:false,text:'今天已簽到。'};if(!this.add(p,'food0',L)||!this.add(p,'water0',L))return {ok:false,text:'需要背包空間才能簽到。'};sy.signed=true;return complete('簽到補給：口糧與淨水各 '+L+' 份。');}
-  if(id===1)return complete('提示：今日天氣 '+this.s.weather.name+'；前方 '+this.s.route[0].name+' 可取得 '+this.s.route[0].desc+'。弱車先補食水再動力化。');
+  if(id===1){const n=this.visibleRoute()[0];return complete('提示：今日天氣 '+this.s.weather.name+'；'+(n?'前方 '+n.name+'：'+n.desc:'前方 3 公里內未探查到目標')+'。弱車先補食水再動力化。');}
   if(id===2)return complete('情報：明日 '+this.weatherFor(this.day+1).name+'，第 '+(7*Math.ceil((this.day+1)/7))+' 天將有區域天災。');
-  if(id===3){this.s.radar=true;return complete('雷達鎖定前方三個地點：'+this.s.route.slice(0,3).map(n=>n.name+' '+Math.ceil(n.km-p.km)+'km').join('、'));}
+  if(id===3){const nodes=this.visibleRoute();return complete(nodes.length?'雷達探查（前方 3 公里）：'+nodes.map(n=>n.name+' '+(n.km-p.km).toFixed(1)+' km').join('、'):'前方 3 公里內未探查到目標。');}
   if(id===5){const item=target||Object.keys(p.inv).find(k=>['food','water','fuel','med'].includes(ITEMS[k].kind));if(!item||!p.inv[item]||!['food','water','fuel','med'].includes(ITEMS[item].kind))return {ok:false,text:'需要一件普通耗材作為原本。'};if((this.s.dayStats.copied||[]).includes(item))return {ok:false,text:'此類物資今日已複製。'};if(!this.add(p,item,L))return {ok:false,text:'背包空間不足。'};(this.s.dayStats.copied??=[]).push(item);return complete('複製完成：'+ITEMS[item].name+' ×'+L);}
   if(id===6){if((p.mats.metal||0)<6)return {ok:false,text:'合成需要金屬 6。'};p.mats.metal-=6;p.mats.alloy=(p.mats.alloy||0)+2*L;return complete('金屬合成為合金 '+2*L+'。');}
   if(id===7){const item=target||Object.keys(p.inv).find(k=>['tool','weapon','gear'].includes(ITEMS[k].kind));if(!item||!p.inv[item]||this.equipped().includes(item)||!['tool','weapon','gear'].includes(ITEMS[item].kind))return {ok:false,text:'需要可回收的工具、武器或防具。'};this.remove(p,item);p.mats.parts=(p.mats.parts||0)+L*2;p.mats.metal+=3;return complete('精密回收完成，取得金屬與零件。');}
@@ -214,7 +215,7 @@ class Game{
   return {ok:false,text:'此能力尚無可用目標。'};
  }
  finishSystem(){}
- systemDescription(){const L=this.level();return this.s.system?['每日額外食水補給','鑑識眼前風險與補給方向','預覽下一天的天氣','揭露前方三處資源點','每日有限次開箱增量','每日限額複製普通耗材','金屬轉為合金','回收工具換取工程材料','製作普通材料需求降低 20%','為綁定載具加入省能詞條','行車耗能降低 '+(L*5+5)+'%','增加 '+[6,12,20][L-1]+' 格私人空間','分析真實公開市場供給','共同任務託管見證','耗用布料急救止血','環境防護額外 +'+(L*5+5),'試算剩餘路程與時間','每 30 公里有限次取得補給'][this.s.system.id]:'';}
+ systemDescription(){const L=this.level();return this.s.system?['每日額外食水補給','鑑識眼前風險與補給方向','預覽下一天的天氣','探查前方 3 公里內的目標','每日有限次開箱增量','每日限額複製普通耗材','金屬轉為合金','回收工具換取工程材料','製作普通材料需求降低 20%','為綁定載具加入省能詞條','行車耗能降低 '+(L*5+5)+'%','增加 '+[6,12,20][L-1]+' 格私人空間','分析真實公開市場供給','共同任務託管見證','耗用布料急救止血','環境防護額外 +'+(L*5+5),'試算剩餘路程與時間','每 30 公里有限次取得補給'][this.s.system.id]:'';}
  serialize(){return JSON.stringify(this.s);}
  static restore(text){const s=JSON.parse(text);if(s.version!==1||!Array.isArray(s.actors)||s.actors.length!==100)throw Error('不相容的存檔');if(!Number.isFinite(s.minute)||s.minute<0||s.minute>43200)throw Error('存檔時間無效');for(const a of s.actors){if(!D.vehicles.families.find(f=>f.id===a.family)||a.tier<1||a.tier>5)throw Error('載具資料無效');}s.running=false;return new Game(s);}
 }
