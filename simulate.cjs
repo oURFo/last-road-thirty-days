@@ -8,7 +8,7 @@ function simulate(seed,family){const g=Game.create(seed,{family,test:true}),p=g.
   for(const [kind,need]of needs){if(!need)continue;const l=g.s.listings.filter(l=>l.seller!=='P'&&ITEMS[l.item].kind===kind&&(kind!=='fuel'||ITEMS[l.item].energy===g.spec().energy)).sort((a,b)=>a.price-b.price)[0];if(l)g.buy(l.id);else{const privateOffer=g.s.actors.slice(1).flatMap(a=>g.privateOffers(a.id)).filter(o=>ITEMS[o.item].kind===kind&&(kind!=='fuel'||ITEMS[o.item].energy===g.spec().energy)).sort((a,b)=>a.price-b.price)[0];if(privateOffer)g.buyPrivate(privateOffer.seller,privateOffer.item);}}
  }
  while(g.s.status==='playing'&&ticks<40000&&decisions<10000){ticks++;if(g.s.running){g.tick(.15);continue;}decisions++;
-  if(g.s.loot){g.s.loot=null;g.s.ground=[];}
+  if(g.s.loot){for(const x of [...g.s.ground])for(let q=x.q;q>0;q--)if(g.takeLoot(x.id,q).ok)break;g.leaveLoot();}
   if(g.s.prompt){const pr=g.s.prompt;if(pr.kind==='combat'){if(p.hp>60&&g.attackPower()>22)g.fight();else g.hide();continue;}if(pr.kind==='road'){if(pr.node.type==='npc'){g.encounterNpc();continue;}if(pr.node.type==='mission'&&p.mats.metal>=6){g.mission();continue;}g.search(false);continue;}if(pr.kind==='npc'){g.ask(pr.npc);g.skip();continue;}g.skip();continue;}
   upkeep();if(g.s.work){g.start();continue;}
   if(p.tire<35&&g.craft('patch').ok)continue;if(p.condition<45&&g.craft('repair').ok)continue;if(!p.mods.bed&&g.craft('bed').ok)continue;

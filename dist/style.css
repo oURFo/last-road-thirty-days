@@ -4,6 +4,14 @@
 @media(max-width:750px){#shell{padding:0 14px}.masthead{height:64px}.brand strong{font-size:17px}.brand{gap:7px}.head-right{font-size:9px;gap:6px}#welcome{grid-template-columns:1fr;padding:35px 6px;gap:28px}.welcome-copy h1{font-size:42px}.welcome-art{height:340px;border-radius:50px 4px 4px 4px}.welcome-copy .eyebrow{font-size:8px}.intro-rules{margin:25px 0}.day-strip{padding:14px 0;gap:15px}.day-strip strong{font-size:28px}.day-strip .eyebrow{font-size:8px;letter-spacing:1px}.daily-main{min-width:110px}.weather-head b{font-size:11px}.weather-head span{font-size:14px}.play-layout{display:flex;flex-direction:column;gap:10px}.road-col{order:0}.left-col{order:1;display:grid;grid-template-columns:1fr 1fr;gap:10px}.left-col .panel{margin-bottom:0;padding:12px}.forecast-panel{grid-column:1/-1}.road-window{height:370px}.vehicle-panel h2{font-size:16px}.section-label{font-size:9px}.controls{gap:6px}.controls button{padding:9px}.controls select{max-width:95px;font-size:10px}.route-section{margin:15px 0 6px}.bottom-nav{bottom:7px;padding:5px;margin-top:12px}.bottom-nav button{flex-direction:column;gap:0;padding:6px;flex:1;font-size:15px}.bottom-nav span{font-size:9px}.bottom-nav small{font-size:8px}.modal-backdrop{padding:12px}.modal{padding:17px;max-height:92vh}.modal-head h2{font-size:20px}.item-grid{grid-template-columns:repeat(2,1fr)}.material-grid{grid-template-columns:repeat(4,1fr)}.choice-grid{grid-template-columns:1fr}.npc-grid{grid-template-columns:1fr}.summary-grid b{font-size:20px}.summary-grid div{padding:10px}.daily-main>span{font-size:9px}.route-card{min-width:100px}.road-bottom{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 /* Keep narrow screens usable with touch and mobile browser toolbars. */
+.equipment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.cost-list{margin:10px 0;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.cost-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:12px}
+.cost-row:last-child{border-bottom:0}.cost-row span{margin-left:auto}.cost-row strong{min-width:65px;text-align:right}
+.cost-ready{color:#b6d8aa}.cost-missing{color:#f2b0a0}
+.recipe-detail>div{flex:1;min-width:0}.recipe-detail>button{flex-shrink:0}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+@media(max-width:750px){.equipment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.recipe-detail{align-items:stretch;flex-direction:column}.recipe-detail>button{width:100%}.cost-row{font-size:12px}.cost-row strong{min-width:0}.cost-row span{margin-left:0}}
 .play-layout>*{min-width:0}
 .modal{overflow-wrap:anywhere}
 @media(max-width:750px){
