@@ -3,3 +3,47 @@
 @media(max-width:1150px){#shell{padding:0 22px}.play-layout{grid-template-columns:210px minmax(320px,1fr)}.right-col{display:none}.brand span{display:none}.road-window{height:clamp(300px,48vh,460px)}}
 @media(max-width:750px){#shell{padding:0 14px}.masthead{height:64px}.brand strong{font-size:17px}.brand{gap:7px}.head-right{font-size:9px;gap:6px}#welcome{grid-template-columns:1fr;padding:35px 6px;gap:28px}.welcome-copy h1{font-size:42px}.welcome-art{height:340px;border-radius:50px 4px 4px 4px}.welcome-copy .eyebrow{font-size:8px}.intro-rules{margin:25px 0}.day-strip{padding:14px 0;gap:15px}.day-strip strong{font-size:28px}.day-strip .eyebrow{font-size:8px;letter-spacing:1px}.daily-main{min-width:110px}.weather-head b{font-size:11px}.weather-head span{font-size:14px}.play-layout{display:flex;flex-direction:column;gap:10px}.road-col{order:0}.left-col{order:1;display:grid;grid-template-columns:1fr 1fr;gap:10px}.left-col .panel{margin-bottom:0;padding:12px}.forecast-panel{grid-column:1/-1}.road-window{height:370px}.vehicle-panel h2{font-size:16px}.section-label{font-size:9px}.controls{gap:6px}.controls button{padding:9px}.controls select{max-width:95px;font-size:10px}.route-section{margin:15px 0 6px}.bottom-nav{bottom:7px;padding:5px;margin-top:12px}.bottom-nav button{flex-direction:column;gap:0;padding:6px;flex:1;font-size:15px}.bottom-nav span{font-size:9px}.bottom-nav small{font-size:8px}.modal-backdrop{padding:12px}.modal{padding:17px;max-height:92vh}.modal-head h2{font-size:20px}.item-grid{grid-template-columns:repeat(2,1fr)}.material-grid{grid-template-columns:repeat(4,1fr)}.choice-grid{grid-template-columns:1fr}.npc-grid{grid-template-columns:1fr}.summary-grid b{font-size:20px}.summary-grid div{padding:10px}.daily-main>span{font-size:9px}.route-card{min-width:100px}.road-bottom{font-size:10px}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Keep narrow screens usable with touch and mobile browser toolbars. */
+.play-layout>*{min-width:0}
+.modal{overflow-wrap:anywhere}
+@media(max-width:750px){
+ #shell{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}
+ #game{padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+ button,.icon-button{min-height:44px;min-width:44px}
+ .big{max-width:100%}
+ .day-strip{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 16px}
+ .daily-main{min-width:0}
+ .daily-main>div:first-child{flex-wrap:wrap;gap:0 8px}
+ .weather-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:0;text-align:left}
+ .road-window{height:clamp(200px,40svh,360px)}
+ .road-top,.road-bottom{gap:8px}
+ .road-top>*,.road-bottom>*{min-width:0}
+ .road-chip{font-size:9px}
+ .controls{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(80px,1fr) 44px}
+ .controls button{padding:8px 5px;font-size:12px;white-space:nowrap}
+ .controls select{width:100%;min-width:0;max-width:none;font-size:16px;padding:6px 2px}
+ .left-col{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .left-col .panel{overflow-wrap:anywhere}
+ .bottom-nav{position:fixed;left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:0;margin:0;max-width:none;padding-bottom:calc(5px + env(safe-area-inset-bottom))}
+ .bottom-nav button{min-width:0;min-height:54px;padding:5px 2px}
+ .bottom-nav span{white-space:nowrap}
+ .modal-backdrop{padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))}
+ .modal{max-height:calc(100dvh - 24px);overscroll-behavior:contain}
+ .modal-head{position:sticky;top:-17px;z-index:2;background:var(--panel);padding:10px 0;margin-top:-10px}
+ .modal-head>div{min-width:0}
+ .modal-head .icon-button{flex-shrink:0}
+ .item-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .item-card{min-width:0}
+ .item-card button{font-size:12px;min-height:44px;padding:7px}
+ .tabs button,.recipe button{min-height:44px;font-size:12px}
+ .recipe>div{min-width:0}
+ input,textarea{font-size:16px}
+ #workOverlay{left:6%;right:6%;top:25%;padding:16px}
+}
+@media(max-width:350px){
+ .head-right #connection{display:none}
+ .left-col{grid-template-columns:minmax(0,1fr)}
+ .controls{grid-template-columns:minmax(0,1fr) auto 44px}
+ .controls select{grid-column:1/-1;grid-row:2}
+ .material-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
