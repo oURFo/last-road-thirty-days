@@ -5,6 +5,14 @@
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 /* Keep narrow screens usable with touch and mobile browser toolbars. */
 .equipment-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.danmaku{position:absolute;top:70px;left:0;right:0;height:100px;overflow:hidden;pointer-events:none;z-index:2}
+.danmaku-message{position:absolute;left:0;white-space:nowrap;color:#fff5d4;background:#0c211cbb;border-radius:20px;padding:3px 12px;font-size:13px;line-height:22px;text-shadow:0 1px 2px #000;will-change:transform}
+.danmaku-message.own{color:#bde7b0}
+.danmaku-toggle{position:absolute;right:10px;top:37px;z-index:3;padding:3px 10px;font-size:11px;background:#142b25cc;min-height:28px}
+.form-grid{display:grid;gap:14px;margin:20px 0}.form-grid label{display:grid;gap:7px}.form-grid input,.form-grid select{width:100%;min-height:44px;font-size:16px}
+.grid-full{grid-column:1/-1}.material button{font-size:11px;padding:5px 8px}
+@media(max-width:750px){.item-grid.trade-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:750px){.danmaku{top:95px;height:96px}.danmaku-message{font-size:12px}.danmaku-toggle{top:40px;min-height:44px}.material-grid .material{min-width:0;overflow-wrap:anywhere}}
 .cost-list{margin:10px 0;border:1px solid var(--line);border-radius:5px;overflow:hidden}
 .cost-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;padding:8px 10px;border-bottom:1px solid var(--line);font-size:12px}
 .cost-row:last-child{border-bottom:0}.cost-row span{margin-left:auto}.cost-row strong{min-width:65px;text-align:right}
