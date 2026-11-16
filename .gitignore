@@ -14,3 +14,5 @@ Thumbs.db
 # Reproducible integration output.
 simulation-results.json
 winning-simulation.json
+balance-*.json
+balance-baseline.txt
