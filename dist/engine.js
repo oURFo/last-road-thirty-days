@@ -2,6 +2,7 @@
 'use strict';
 const D=root.GameData||(typeof require==='function'?require('./data.js'):null);
 const Dialogue=root.RoadDialogue||(typeof require==='function'?require('./dialogue.js'):{});
+if(typeof module!=='undefined')require('./expansion-data.js');
 const ITEMS=Object.fromEntries(D.items.map(x=>[x.id,x]));
 const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,x));
 const clone=x=>JSON.parse(JSON.stringify(x));
@@ -95,7 +96,7 @@ class Game{
  advance(minutes,{moving=false,ignorePrompt=false}={}){
   if(this.s.status!=='playing')return 0;let remaining=minutes,advanced=0;
   while(remaining>1e-7&&this.s.status==='playing'){
-   if(this.s.prompt&&!ignorePrompt)break;
+   if((this.s.prompt&&!ignorePrompt)||this.s.publicInstance||this.s.publicResult)break;
    let dt=Math.min(5,remaining,1440-(this.s.minute%1440),60-(this.s.minute%60));const p=this.player;let target=null;
    if(moving){target=this.s.route[0];if(target)dt=Math.min(dt,Math.max(0,(target.km-p.km)/this.speed()*60));if(this.spec().energy!=='人力'&&p.energy<=.00001){this.s.running=false;this.s.notice='能源耗盡，先補充能源或開啟交易所。';break;}if(p.stamina<3){this.s.running=false;this.s.notice='精力不足，請先休息。';break;}if(p.condition<=0||p.tire<=0){this.s.running=false;this.s.notice='載具或輪胎故障，需要維修。';break;}}
    if(dt<1e-6&&target){this.arrive();break;}
@@ -106,7 +107,7 @@ class Game{
    if(this.s.status!=='playing')break;
    if(this.s.minute%1440<1e-6){this.endDay();if(this.s.status!=='playing')break;}
    if(moving&&target&&p.km>=target.km-1e-6){p.km=target.km;this.arrive();break;}
-   if(this.s.prompt&&!ignorePrompt)break;
+   if((this.s.prompt&&!ignorePrompt)||this.s.publicInstance||this.s.publicResult)break;
   }
   this.dirty=true;return advanced;
  }
@@ -227,7 +228,7 @@ class Game{
   const complete=text=>{sy.used++;this.systemXp();this.log(text,'rare');return {ok:true,text};};
   if(id===0){if(sy.signed)return {ok:false,text:'今天已簽到。'};const q=[2,4,8][L-1],trial=clone(p);if(!this.add(trial,'food0',q)||!this.add(trial,'water0',q))return {ok:false,text:'需要足夠背包空間接收整份簽到補給。'};this.add(p,'food0',q);this.add(p,'water0',q);sy.signed=true;return complete('簽到補給：口糧與淨水各 '+q+' 份。');}
   if(id===1){const nodes=this.visibleRoute(20);return complete('提示：今日天氣 '+this.s.weather.name+'；'+(nodes.length?nodes.map(n=>'前方 '+(n.km-p.km).toFixed(1)+' km '+n.name+'：'+n.desc).join('；'):'前方 20 公里內未探查到目標')+'。');}
-  if(id===2)return complete('情報：明日 '+this.weatherFor(this.day+1).name+'，第 '+(7*Math.ceil((this.day+1)/7))+' 天將有區域天災。災害傷害減少 '+(L*10)+'%。');
+  if(id===2)return complete('情報：明日 '+this.weatherFor(this.day+1).name+'。第4天起天災隨機發生，沒有固定災害日期。災害傷害減少 '+(L*10)+'%。');
   if(id===3){const nodes=this.visibleRoute(10);return complete(nodes.length?'雷達探查（前方 10 公里）：'+nodes.map(n=>n.name+' '+(n.km-p.km).toFixed(1)+' km').join('、'):'前方 10 公里內未探查到目標。');}
   if(id===5){const item=target||Object.keys(p.inv).find(k=>['food','water','fuel','med'].includes(ITEMS[k].kind));if(!item||!p.inv[item]||!['food','water','fuel','med'].includes(ITEMS[item].kind))return {ok:false,text:'需要一件普通耗材作為原本。'};if((this.s.dayStats.copied||[]).includes(item))return {ok:false,text:'此類物資今日已複製。'};if(!this.add(p,item,L))return {ok:false,text:'背包空間不足。'};(this.s.dayStats.copied??=[]).push(item);return complete('複製完成：'+ITEMS[item].name+' ×'+L);}
   if(id===6){if((p.mats.metal||0)<6)return {ok:false,text:'合成需要金屬 6。'};p.mats.metal-=6;p.mats.alloy=(p.mats.alloy||0)+2*L;return complete('金屬合成為合金 '+2*L+'。');}
@@ -246,4 +247,5 @@ class Game{
 }
 const create=Game.create;Game.create=function(seed,opts){const g=create.call(Game,seed,opts);g.s.ground=[];return g;};
 const API={Game,ITEMS,WEATHER,clamp};root.RoadGame=API;if(typeof module!=='undefined')module.exports=API;
+if(typeof module!=='undefined')require('./expansion.js');
 })(globalThis);
