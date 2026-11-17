@@ -29,18 +29,18 @@ modules:[
 {id:'bed',names:['折疊床','舒適休息艙','生存生活艙'],desc:'休息額外恢復精力／理智／健康，隨階級提高',values:[1,2,3],cost:{cloth:5,wood:4}},
 {id:'medical',names:['急救工具架','醫療工作站','自動診療設備'],desc:'醫藥治療量增加20%／40%／60%',values:[.2,.4,.6],cost:{parts:4,chemical:4,cloth:3}}
 ],publicTypes:[
-{id:'hunt',name:'怪物討伐',mode:'combat',goal:'擊殺封鎖出口的怪物',rounds:7},
-{id:'defend',name:'營地防守',mode:'defend',goal:'擊退三波怪物，守住營地',rounds:10},
+{id:'hunt',name:'怪物討伐',mode:'combat',goal:'擊退多波封鎖出口的怪物',rounds:7},
+{id:'defend',name:'營地防守',mode:'defend',goal:'擊退多波怪物，守住營地',rounds:10},
 {id:'gather',name:'資源徵集',mode:'gather',goal:'共同交付指定工程材料',rounds:7},
-{id:'find',name:'遺失物搜尋',mode:'find',goal:'搜索三處線索，找回委託物',rounds:7},
+{id:'find',name:'遺失物搜尋',mode:'find',goal:'搜索多處線索，找回委託物',rounds:7},
 {id:'rescue',name:'人員救援',mode:'rescue',goal:'找到傷者、穩定傷勢並送往出口',rounds:8},
-{id:'escort',name:'車隊護送',mode:'escort',goal:'護送補給車通過三段危險道路',rounds:8},
-{id:'repair',name:'設施搶修',mode:'repair',goal:'修復三個故障節點',rounds:7},
+{id:'escort',name:'車隊護送',mode:'escort',goal:'護送補給車通過多段危險道路',rounds:8},
+{id:'repair',name:'設施搶修',mode:'repair',goal:'修復多個故障節點',rounds:7},
 {id:'purify',name:'污染區淨化',mode:'purify',goal:'定位、封閉污染源並帶回樣本',rounds:8},
 {id:'evacuate',name:'限時撤離',mode:'evacuate',goal:'找到通行證、開啟出口並完成撤離',rounds:6},
-{id:'puzzle',name:'密室解謎',mode:'puzzle',goal:'取得密碼線索並解除三道封鎖',rounds:7},
-{id:'machine',name:'失控機械處理',mode:'machine',goal:'摧毀機械或拆除三個控制節點',rounds:8},
-{id:'recover',name:'補給回收',mode:'recover',goal:'找出並共同搬運三箱補給',rounds:7}
+{id:'puzzle',name:'密室解謎',mode:'puzzle',goal:'取得密碼線索並解除多道封鎖',rounds:7},
+{id:'machine',name:'失控機械處理',mode:'machine',goal:'摧毀機械或拆除多個控制節點',rounds:8},
+{id:'recover',name:'補給回收',mode:'recover',goal:'找出並共同搬運多箱補給',rounds:7}
 ]};
 const extra=[
 {id:'icecream',name:'冰淇淋',kind:'food',food:15,price:8,stack:5,buff:{types:['heat'],protection:30,minutes:120},shelf:360},
