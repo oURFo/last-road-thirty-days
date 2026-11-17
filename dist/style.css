@@ -73,3 +73,13 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .combat-feedback-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0}.combat-feedback-stats>div{display:flex;justify-content:space-between;gap:12px;padding:10px;background:#ffffff08;border-radius:4px}.combat-feedback-stats b{color:var(--accent)}
 
 .exposure-hint{display:flex;width:100%;min-height:48px;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:12px 14px;border:2px dashed #ed7971;border-radius:6px;background:#9f383817;color:#ffaaa2;text-align:left;cursor:pointer}.exposure-hint b{margin-left:8px}.exposure-hint small{font-size:11px}.exposure-hint:hover,.exposure-hint:focus-visible{background:#9f383833;outline:2px solid #ffaaa2;outline-offset:3px}.exposure-warning{color:#ffaaa2;font-weight:700}@media(max-width:400px){.exposure-hint{align-items:flex-start;flex-direction:column;gap:4px}}
+
+.vehicle-portrait{display:block;width:100%;height:118px;object-fit:contain;background:radial-gradient(ellipse at 50% 70%,#74836b33,transparent 75%);margin:8px 0 4px}
+.arrival-vehicle-art{width:100%;height:220px;object-fit:contain;background:radial-gradient(ellipse,#87907622,transparent 70%)}
+.encounter-art{display:block;width:100%;height:210px;object-fit:contain;background:radial-gradient(ellipse,#87907622,transparent 70%)}
+.stage-art{width:130px;height:85px;object-fit:contain;flex-shrink:0}.vehicle-stage{gap:12px}.vehicle-stage>div{flex:1;min-width:0}
+.route-art{width:85px;height:53px;object-fit:contain;float:left;margin-right:10px}.route-card{min-height:70px}
+.art-selector{display:flex;gap:12px;align-items:center;margin:20px 0}.art-selector select{flex:1;min-width:0;max-width:100%;font-size:16px;min-height:44px}
+.art-catalog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.art-catalog-grid figure{margin:0;border:1px solid #a0ae8e33;background:#ffffff03;border-radius:8px;overflow:hidden}.art-catalog-grid img{display:block;width:100%;height:150px;object-fit:contain}.art-catalog-grid figcaption{padding:8px 12px;font-size:12px;line-height:1.6;color:#d0d3b8}.art-catalog-grid figcaption b{color:var(--accent);margin-right:6px}
+@media(max-width:750px){.vehicle-portrait{height:110px}.stage-art{width:100px;height:70px}.vehicle-stage{flex-wrap:wrap}.art-catalog-grid img{height:100px}.art-catalog-grid figcaption{padding:6px;font-size:11px}.encounter-art{height:170px}}
+@media(max-width:400px){.art-catalog-grid{grid-template-columns:1fr}.art-catalog-grid img{height:145px}.art-selector{flex-direction:column;align-items:stretch}.vehicle-stage .badge{margin-left:auto}}
