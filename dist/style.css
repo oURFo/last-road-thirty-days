@@ -63,3 +63,9 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none}
  .controls select{grid-column:1/-1;grid-row:2}
  .material-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
+/* Seven direct management entries, including the standalone region channel. */
+.bottom-nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.channel-feed{overflow-wrap:anywhere}
+.channel-feed .chat-line{padding:13px 0;border-bottom:1px solid #9db1a322}
+@media(max-width:750px){#game{padding-bottom:calc(145px + env(safe-area-inset-bottom))}.bottom-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.bottom-nav span{font-size:12px}.bottom-nav button{font-size:14px;min-height:54px}.bottom-nav small{font-size:10px}}

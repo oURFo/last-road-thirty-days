@@ -64,6 +64,12 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none}
  .controls select{grid-column:1/-1;grid-row:2}
  .material-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
+/* Seven direct management entries, including the standalone region channel. */
+.bottom-nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.channel-feed{overflow-wrap:anywhere}
+.channel-feed .chat-line{padding:13px 0;border-bottom:1px solid #9db1a322}
+@media(max-width:750px){#game{padding-bottom:calc(145px + env(safe-area-inset-bottom))}.bottom-nav{grid-template-columns:repeat(4,minmax(0,1fr))}.bottom-nav span{font-size:12px}.bottom-nav button{font-size:14px;min-height:54px}.bottom-nav small{font-size:10px}}
 </style></head>
 <body>
 <div class="grain"></div>
@@ -78,9 +84,9 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none}
   <div class="play-layout">
    <aside class="left-col"><div class="panel vehicle-panel"><div class="section-label">YOUR ONLY HOME <span id="tierBadge"></span></div><h2 id="vehicleName"></h2><div class="muted" id="vehicleDetails"></div><div class="vehicle-stats" id="vehicleStats"></div><button class="outline full" id="upgradeBtn">查看晉階路線 ↗</button></div><div class="panel body-panel"><div class="section-label">生存狀態 <span id="exposureText"></span></div><div id="vitals"></div><button class="quiet full" id="quickFood">使用食物與飲水 →</button></div><div class="panel forecast-panel"><div class="section-label">CENTRAL BROADCAST</div><p id="forecast"></p><small>活過第 30 天結算即勝利。<br>未達里程、健康耗盡或逆行皆會死亡。</small></div></aside>
    <section class="road-col"><div class="road-window"><canvas id="roadCanvas" aria-label="載具沿公路前進，兩側出現建築與事件"></canvas><div class="road-top"><span class="road-chip" id="roadState">● 已停車</span><span class="road-chip" id="sectorText">ROUTE 07</span></div><div id="danmaku" class="danmaku" aria-hidden="true"></div><button class="danmaku-toggle" id="danmakuToggle" aria-pressed="true">彈幕 開</button><div class="road-bottom"><span id="nextText"></span><b id="speedText"></b></div><div id="workOverlay" hidden><div class="eyebrow">WORK IN PROGRESS</div><b id="workName"></b><div class="progress"><i id="workFill"></i></div><small id="workTime"></small></div></div><div class="controls"><button class="primary drive" id="driveBtn">▶ 前進</button><button class="outline" id="restBtn">☾ 休息</button><select id="speedSelect" aria-label="行駛速度"><option value="0.75">節能巡航</option><option value="1" selected>正常巡航</option><option value="1.2">高速前進</option></select><button class="icon-button" id="reverseBtn" title="逆行（致命）">↶</button></div><div class="route-section"><div class="section-label">前方道路 <span>不回頭 · 一直向前</span></div><div id="routeCards"></div></div></section>
-   <aside class="right-col"><div class="panel comms"><div class="section-label">區域通訊 <span class="live">LIVE</span></div><div class="comms-intro">每條路都孤獨，但你不是唯一的人。</div><div id="chatPreview"></div><button class="quiet full" data-pane="society">打開區域頻道 ↗</button></div><div class="panel log-panel"><div class="section-label">旅途紀錄 <span>LOG</span></div><div id="logPreview"></div></div></aside>
+   <aside class="right-col"><div class="panel comms"><div class="section-label">區域通訊 <span class="live">LIVE</span></div><div class="comms-intro">每條路都孤獨，但你不是唯一的人。</div><div id="chatPreview"></div><button class="quiet full" data-pane="channel">打開區域頻道 ↗</button></div><div class="panel log-panel"><div class="section-label">旅途紀錄 <span>LOG</span></div><div id="logPreview"></div></div></aside>
   </div>
-  <nav class="bottom-nav" aria-label="遊戲管理"><button data-pane="bag">▧ <span>背包</span><small id="bagCount"></small></button><button data-pane="craft">⚒ <span>製作</span></button><button data-pane="market">⇄ <span>交易所</span><small id="creditsNav"></small></button><button data-pane="society">◎ <span>求生者</span></button><button data-pane="system">✧ <span>特殊系統</span></button><button data-pane="journal">≡ <span>紀錄</span></button></nav>
+  <nav class="bottom-nav" aria-label="遊戲管理"><button data-pane="bag">▧ <span>背包</span><small id="bagCount"></small></button><button data-pane="craft">⚒ <span>製作</span></button><button data-pane="market">⇄ <span>交易所</span><small id="creditsNav"></small></button><button data-pane="channel">☷ <span>區域頻道</span></button><button data-pane="society">◎ <span>求生者</span></button><button data-pane="system">✧ <span>特殊系統</span></button><button data-pane="journal">≡ <span>紀錄</span></button></nav>
  </section>
 </main>
 <div id="modal" class="modal-backdrop" hidden><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-head"><div><div class="eyebrow" id="modalTag">SECTOR 07</div><h2 id="modalTitle"></h2></div><button class="icon-button" id="closeModal" aria-label="關閉">✕</button></div><div id="modalBody"></div></section></div>
@@ -90,7 +96,78 @@ button:disabled{opacity:.5;cursor:not-allowed;transform:none}
 if(typeof module!=="undefined")module.exports=globalThis.GameData;
 </script><script>(function(root){
 'use strict';
+// Ambient lines describe feelings; factual emergencies are gated by the simulation.
+const lines={
+'謹慎':{
+ arrival:['先別亂走。我醒來就在路邊，連這裡是哪裡都不知道。','我把規則讀了三遍，手還是在抖。真的不能回頭嗎？','手機沒有訊號，只有這個頻道能用……有人知道我們怎麼來的嗎？'],
+ attack:['剛才有東西撞過來。我躲過了，但現在連呼吸都不敢太大聲。','我遇襲了。手一直發抖，暫時沒辦法把經過說清楚。','剛才那個不是人吧？我不敢確認，也不敢再看。'],
+ thirst:['嘴巴乾得很難受，我開始擔心自己會判斷錯誤。','我一直提醒自己別慌，可是越渴越想亂做決定。','吞口水都不太舒服了。我得先把飲水問題處理掉。'],
+ hunger:['肚子一直叫，算里程時老是漏掉數字。','我不敢把找吃的拖到最後，但現在真的有點慌。','飢餓比我以為的更難忍，連路邊影子都會看錯。'],
+ night:['天黑之後，每一個聲音都像在靠近。','我想休息，又怕閉上眼睛就聽不到動靜。','有人還醒著嗎？不用回報位置，讓我知道頻道還有人就好。'],
+ weather:['這種{weather}讓人很不安，我一直重看自己的防護有沒有漏掉。','我以為最難的是開車，現在才知道天氣也能把人逼得喘不過氣。','外面的{weather}還沒過，我先穩住，不能急。'],
+ dawn:['又到白天了。我還活著，先把手放穩再出發。','撐過昨天不代表今天就安全，我得重新確認行程。','早。剛才第一件事是確認自己還能看見天亮。'],
+ idle:['我剛才一直數護欄，數到一半又忘了從哪裡開始。','要是能知道這條路到底有沒有盡頭就好了。','我把想說的話刪掉了。算了，先往前走。']},
+'冒險':{
+ arrival:['誰把我弄來的？出來說清楚啊！……算了，先看看前面。','這也太離譜了吧，我剛才還以為有人在整我。','我說不怕是假的。只是停在原地好像更嚇人。'],
+ attack:['剛才那一下差點把我魂撞出去！我還活著，先報個平安。','我真的碰上怪物了。以前那些膽大的話當我沒說。','遇襲了！腦袋一片空白，現在才想起來自己剛才有叫出聲。'],
+ thirst:['渴得我想直接大喊，但喊完好像只會更渴。','這次不是逞強的時候，我真的快受不了口乾了。','前面再有什麼刺激的事也先算了，我現在只想喝水。'],
+ hunger:['好想吃一頓熱的，光是想像就更餓了。','我現在連冒險的力氣都被肚子吃掉了。','剛才還覺得自己能撐，現在肚子開始抗議了。'],
+ night:['白天說的豪言壯語，到了晚上聽起來真蠢。','夜裡這條路也太安靜了吧。誰隨便講兩句都行。','我沒睡，別問為什麼。就是……不太想閉眼。'],
+ weather:['這個{weather}比我想的兇。我承認剛才太小看它了。','外面這樣還要繼續活著，難度是不是調太高了？','我本來想罵兩句這場{weather}，現在只想它快點過。'],
+ dawn:['天亮！昨天那些丟臉的聲音就當沒聽見吧。','又多活一天。今天至少要比昨天少犯一個蠢。','早啊，還能出聲的人都算贏了昨晚一局。'],
+ idle:['以前覺得塞車很煩，現在居然有點想念。','我剛才想編個笑話，結果只想到自己現在的處境。','有人記得自己來這裡前最後在做什麼嗎？我越想越模糊。']},
+'互助':{
+ arrival:['大家先別慌……我也在怕，但至少我們還能說話。','有人跟我一樣突然出現在這裡嗎？我想先聽到別人的聲音。','如果你也不知道發生什麼事，沒關係，我們先把今天過完。'],
+ attack:['我剛剛遇襲了。先讓我緩一下……其他人也小心。','怪物真的會來。我現在還在發抖，不想嚇你們，但別大意。','我還活著。剛才最怕的，是以為以後再也沒人聽見我。'],
+ thirst:['我很渴，說話有點不舒服。你們也別等到這樣才管飲水。','本來想安慰別人，可是我現在自己也因為缺水慌了。','我先少說幾句，口乾得難受。不是不理大家。'],
+ hunger:['肚子餓得有點難過，突然很想念跟家人一起吃飯。','我也有撐不住情緒的時候。今天就是餓得特別想哭。','我先承認，我現在真的很餓。說出來反而比較不慌。'],
+ night:['今晚如果覺得孤單，可以在頻道留一句話。','我還醒著，看到訊息的人不一定要回，知道有人就好。','不用假裝完全不怕。夜裡害怕很正常，我也一樣。'],
+ weather:['這種{weather}太折磨人了。大家能照顧自己就先照顧自己。','外面天氣不好，心情也容易跟著沉下去。慢慢來。','我對著{weather}發呆了一會兒，還是決定跟大家打聲招呼。'],
+ dawn:['早安。今天還能在這裡跟你們說話，真好。','又見到天亮了。希望昨天出聲的人今天也都還在。','新的一天，先別急著責怪昨天的自己。'],
+ idle:['不知道家裡現在幾點了，有沒有人發現我不見。','如果能回去，我想先好好跟家人吃頓飯。','這裡沒有熟悉的聲音，還好偶爾能看到你們的訊息。']},
+'商人':{
+ arrival:['我原本還在算今天的帳，怎麼醒來連世界都變了。','這裡連錢的名字都換了……先別急著花，規則還沒看懂。','我想問這能不能退場。好吧，當我沒問。'],
+ attack:['剛才遇襲，差一點連人帶帳一起沒了。','我現在手抖到按不準字。這種事真不是幾張券能解決的。','命比貨重要。剛才被撞那一下，我終於真的懂了。'],
+ thirst:['平常我會慢慢算價，現在渴得根本靜不下心。','口乾到這個程度，才知道平常那杯水有多值錢。','我不想在慌的時候做交易，但現在真的很渴。'],
+ hunger:['餓的時候連算術都會算錯，這筆成本以前沒算過。','我想念的不是山珍海味，是以前隨手就能買到的早餐。','肚子一直叫，害我每看到商品都想點下去。得冷靜。'],
+ night:['到了夜裡，帳面數字一點都不能讓人安心。','今天的帳明天再算，現在先祈禱不要出事。','以前會為了幾塊錢失眠，現在失眠的理由好多了。'],
+ weather:['這場{weather}不跟人講價，真麻煩。','我開始覺得能安穩活著，本身就是一筆很大的收入。','外頭這種{weather}，再精打細算也得先保命。'],
+ dawn:['今天開帳。第一筆，自己還活著。','早，昨天沒結完的事先放著，人還在比較重要。','又有一天可以重新安排了。先別把自己逼得太緊。'],
+ idle:['我剛才居然在想，要是能開張發票就好了。習慣真可怕。','以前最想放假，現在只想回到普通上班的日子。','有人還記得原本世界的一杯咖啡多少錢嗎？我快忘了。']},
+'技師':{
+ arrival:['我檢查過載具了，還是搞不懂自己怎麼來的。','摸得到金屬、聞得到灰塵。這真的不是夢嗎？','平常東西壞了還知道從哪修起，現在連問題在哪都不知道。'],
+ attack:['剛才被襲擊，聲音完全不像一般碰撞。我現在心跳很亂。','我遇上那東西了。腦子想分析，手卻一直抖。','剛才差點出事。先讓我坐一下，連拿工具都拿不穩。'],
+ thirst:['口乾得很難集中精神，連熟悉的零件都看不進去。','機器缺油會停，人缺水也一樣。我得先顧自己。','現在要我看圖紙也沒用，滿腦子都在想水。'],
+ hunger:['餓到連手都沒力氣。不能只顧著車，把自己忘了。','好想聞到熱飯的味道，比機油味好多了。','今天最難修的好像是我自己的肚子。'],
+ night:['夜裡聽什麼都像異音，分不清是車還是自己太緊張。','我反覆確認相同的地方，大概只是想讓手忙一點。','如果只是機械故障就好了，至少我知道該怎麼辦。'],
+ weather:['這個{weather}讓我更想念有屋頂的工作間。','外面天氣這麼糟，連熟悉的工具握著都沒那麼安心。','我可以想辦法做防護，但沒辦法叫這場{weather}停下來。'],
+ dawn:['天亮後才發現，昨晚一直咬著牙。','又撐過一天。先活動手指，今天還要靠它們。','早，我還在。能修的東西，今天再慢慢修。'],
+ idle:['以前工作間那台吵死人的風扇，現在想起來居然很親切。','有人會在緊張時一直檢查同一件東西嗎？','突然很想聽到一句「下班了」，就普通的那種。']},
+'投機':{
+ arrival:['我找不到退出的地方。這次好像真的沒辦法鑽空子。','先問一下，有人知道這到底是什麼局嗎？我一點頭緒都沒有。','我本來以為自己很會看情勢，現在連自己在哪都不知道。'],
+ attack:['剛才那東西衝過來，我連小聰明都想不起來了。','遇襲了。我還活著，其他的等我手不抖再說。','我承認，剛才腦袋裡只剩一句：完了。'],
+ thirst:['現在誰說缺水不難受，我一定跟他急。','我想裝得很冷靜，但嘴巴乾到根本裝不下去。','原來再怎麼盤算，也算不掉身體想喝水這件事。'],
+ hunger:['以前還挑吃的，現在想起來真欠揍。','我在想有沒有不用餓肚子的捷徑。想了半天，沒有。','肚子叫得比我說話還大聲，真丟臉。'],
+ night:['白天覺得自己還有辦法，晚上就只想有人陪著出聲。','我沒睡。不是在盤算什麼，就是睡不著。','夜裡這種安靜，讓人連撒謊說不怕都懶得說。'],
+ weather:['這種{weather}沒有漏洞可鑽，真是夠了。','我寧願跟人談條件，也不想跟外頭這天氣耗。','能不能把這場{weather}換掉？開玩笑的，我知道不能。'],
+ dawn:['又活一天，這次不是運氣也得說是運氣了。','早。昨晚那些悲觀的念頭，先擱著吧。','今天還能重新想辦法，這就夠了。'],
+ idle:['我剛剛想起一件以前覺得很丟臉的事，現在突然覺得沒什麼了。','如果真能回去，我想先睡到自然醒。','有人跟我一樣，偶爾會懷疑自己其實還沒醒嗎？']},
+'強硬':{
+ arrival:['誰幹的？把人丟在這裡就算交代了？','我不想聽安慰，我想知道怎麼離開。','規則我看到了。現在先往前，其他的以後再說。'],
+ attack:['剛遇襲。我還能說話，別一直問。','那東西差點碰到我要害。……讓我安靜一下。','我沒事。手抖只是剛才太用力，別多想。'],
+ thirst:['渴得很煩，現在別跟我講大道理。','我知道要冷靜，但嘴巴乾成這樣很難不火大。','我會處理飲水。只是現在真的很不好受。'],
+ hunger:['肚子餓，脾氣也差。不是針對誰。','我現在不想說漂亮話，只想把飢餓壓下去。','能撐跟不難受是兩回事。我沒說自己不餓。'],
+ night:['誰還醒著？我只是確認頻道沒斷。','別一直拿聲音嚇自己。……我也在提醒我自己。','我不打算跟黑暗認輸，但它真的很煩。'],
+ weather:['這場{weather}沒完沒了，夠了沒有。','我能扛不代表我喜歡這個鬼天氣。','先撐過這場{weather}。罵完了，事情還是得做。'],
+ dawn:['天亮了。還在的人就繼續。','昨天的事別一直提，今天還有今天要過。','我還在。就說這一句。'],
+ idle:['我剛才想起家裡那張很難坐的椅子。居然有點想念。','別問我在想什麼，反正不是這條破路。','如果能回去，有些話我不會再拖著不說了。']}
+};
+root.RoadDialogue=lines;if(typeof module!=='undefined')module.exports=lines;
+})(globalThis);
+</script><script>(function(root){
+'use strict';
 const D=root.GameData||(typeof require==='function'?require('./data.js'):null);
+const Dialogue=root.RoadDialogue||(typeof require==='function'?require('./dialogue.js'):{});
 const ITEMS=Object.fromEntries(D.items.map(x=>[x.id,x]));
 const clamp=(x,a=0,b=100)=>Math.max(a,Math.min(b,x));
 const clone=x=>JSON.parse(JSON.stringify(x));
@@ -120,8 +197,8 @@ class Game{
  expireRequests(){this.s.requests=this.s.requests.filter(r=>{const a=this.s.actors.find(a=>a.id===r.buyer);if(!a)return false;if(!a.alive||r.expires<=this.s.minute){a.credits+=r.price;if(a.id==='P')this.log('求購 '+ITEMS[r.item].name+' 已到期，退回 '+r.price+' 券。','trade');return false;}return true;});}
  cancelRequest(id){const r=this.s.requests.find(r=>r.id===id);if(!r||r.buyer!=='P')return {ok:false,text:'此需求不存在或不屬於你。'};this.player.credits+=r.price;this.s.requests=this.s.requests.filter(x=>x.id!==id);this.announce(this.player,'已取消求購 '+ITEMS[r.item].name+' ×'+r.q+'。');return {ok:true,text:'需求已取消，退回 '+r.price+' 券。'};}
  requestStatus(r,seller=this.player){const buyer=this.s.actors.find(a=>a.id===r?.buyer);if(!r||!buyer?.alive||!seller?.alive||buyer===seller||r.expires<=this.s.minute)return {ok:false,text:'需求已失效或不能回應自己的需求。'};if(this.available(seller,r.item)<r.q)return {ok:false,text:'缺少 '+(r.q-this.available(seller,r.item))+' 單位。'};if(!this.add(clone(buyer),r.item,r.q))return {ok:false,text:'買方背包已滿，暫時無法供貨。'};return {ok:true,text:'交付 '+r.q+' 單位，收取 '+r.price+' 券。'};}
- fulfillRequest(id,seller=this.player){this.expireRequests();const r=this.s.requests.find(r=>r.id===id),status=this.requestStatus(r,seller);if(!status.ok)return status;const buyer=this.s.actors.find(a=>a.id===r.buyer);this.remove(seller,r.item,r.q);this.add(buyer,r.item,r.q);seller.credits+=r.price;this.s.requests=this.s.requests.filter(x=>x.id!==id);this.bond(buyer,seller.id,3,2);if(buyer.id==='P'||seller.id==='P')this.log(seller.name+' 供貨給 '+buyer.name+'：'+ITEMS[r.item].name+' ×'+r.q+'，成交 '+r.price+' 券。','trade');this.announce(seller,'已向 '+buyer.name+' 交付 '+ITEMS[r.item].name+' ×'+r.q+'。');return {ok:true,text:'整組供貨完成，物資與生存券已交付。'};}
- generateRequests(){const alive=this.s.actors.slice(1).filter(a=>a.alive);for(let i=0;i<6&&alive.length;i++){const a=this.pick(alive);if(this.s.requests.filter(r=>r.buyer===a.id).length>=2)continue;let id;if((a.inv.water0||0)<2)id='water0';else if((a.inv.food0||0)<2)id='food0';else if(this.spec(a).energy!=='人力'&&a.energy<this.spec(a).energyPer100Km)id=this.fuelId(a);else{id=this.pick(['mat_metal','mat_parts','mat_cloth','mat_wood']);if(this.available(a,id)>=8)continue;}if(this.s.requests.some(r=>r.buyer===a.id&&r.item===id))continue;const q=ITEMS[id].kind==='material'?3:ITEMS[id].kind==='fuel'?Math.max(1,Math.ceil(this.spec(a).energyPer100Km*.3)):2;const price=Math.max(1,Math.ceil(ITEMS[id].price*q*(1+this.random()*.3)));if(a.credits-price>=5)this.postRequest(id,q,price,a);}}
+ fulfillRequest(id,seller=this.player){this.expireRequests();const r=this.s.requests.find(r=>r.id===id),status=this.requestStatus(r,seller);if(!status.ok)return status;const buyer=this.s.actors.find(a=>a.id===r.buyer);this.remove(seller,r.item,r.q);this.add(buyer,r.item,r.q);seller.credits+=r.price;this.s.requests=this.s.requests.filter(x=>x.id!==id);this.bond(buyer,seller.id,3,2);if(buyer.id==='P'||seller.id==='P')this.log(seller.name+' 供貨給 '+buyer.name+'：'+ITEMS[r.item].name+' ×'+r.q+'，成交 '+r.price+' 券。','trade');if(!this.night||buyer.id==='P'||seller.id==='P')this.announce(seller,'已向 '+buyer.name+' 交付 '+ITEMS[r.item].name+' ×'+r.q+'。');return {ok:true,text:'整組供貨完成，物資與生存券已交付。'};}
+ generateRequests(){const alive=this.s.actors.slice(1).filter(a=>a.alive);for(let i=0;i<(this.night?2:6)&&alive.length;i++){const a=this.pick(alive);if(this.night&&a.action==='休息')continue;if(this.s.requests.filter(r=>r.buyer===a.id).length>=2)continue;let id;if((a.inv.water0||0)<2)id='water0';else if((a.inv.food0||0)<2)id='food0';else if(this.spec(a).energy!=='人力'&&a.energy<this.spec(a).energyPer100Km)id=this.fuelId(a);else{id=this.pick(['mat_metal','mat_parts','mat_cloth','mat_wood']);if(this.available(a,id)>=8)continue;}if(this.s.requests.some(r=>r.buyer===a.id&&r.item===id))continue;const q=ITEMS[id].kind==='material'?3:ITEMS[id].kind==='fuel'?Math.max(1,Math.ceil(this.spec(a).energyPer100Km*.3)):2;const price=Math.max(1,Math.ceil(ITEMS[id].price*q*(1+this.random()*.3)));if(a.credits-price>=5)this.postRequest(id,q,price,a);}}
  matchRequests(){for(let i=0;i<4&&this.s.requests.length;i++){const r=this.pick(this.s.requests);const sellers=this.s.actors.slice(1).filter(a=>a.alive&&a.id!==r.buyer&&this.available(a,r.item)-this.reserve(a,r.item)>=r.q&&r.price>=Math.ceil(ITEMS[r.item].price*r.q*.8));if(sellers.length)this.fulfillRequest(r.id,this.pick(sellers));}}
 
  equipmentSlot(id){if(ITEMS[id]?.kind==='weapon')return 'weapon';return ({gear0:'body',gear1:'body',gear2:'body',gear3:'face',gear4:'body',gear5:'body',gear6:'head',gear7:'feet',gear8:'eyes',gear9:'body',gear10:'body',gear11:'body'})[id]||null;}
@@ -135,7 +212,11 @@ class Game{
  craftStatus(id){const r=D.recipes.find(x=>x.id===id),cost=this.recipeCost(id);if(!r)return {ok:false,text:'未知配方。'};let text='';if(this.s.work)text='已有工作尚未完成。';else if((this.player.mods[r.effect]||0)>=({slots:12,armor:120,heat:60,cold:60,rain:60,acid:60,dust:60,solar:2,bed:1,stealth:2}[r.effect]??Infinity))text='該設備已達原型上限。';else if(this.materialStatus(cost).some(x=>x.missing))text='工程材料不足。';else if(r.effect==='item'&&!this.add(clone(this.player),r.value))text='成品放不下，先整理背包。';return {ok:!text,text: text||'材料充足，可以製作。',cost};}
  upgradeStatus(){const p=this.player,v=this.spec(),unlock=[1,4,10,18][p.tier-1],translate={'金屬':'metal','零件':'parts','橡膠':'rubber','電路':'circuit','晉階核心':'core'},cost={};if(p.tier>=5)return {ok:false,text:'已達車系終階。',cost:{}};for(const [k,key]of Object.entries(translate))cost[key]=v.upgradeCost[k]||0;let text='';if(this.day<unlock)text='需存活至第 '+unlock+' 天。';else if(this.s.work)text='請先完成目前工作。';else if(p.condition<50)text='車況需至少 50，請先修車。';else if(this.materialStatus(cost).some(x=>x.missing))text='晉階材料不足。';return {ok:!text,text:text||'條件與材料充足，可以晉階。',cost,unlock};}
  log(text,type='info'){this.s.logs.unshift({time:this.s.minute,day:this.day,text,type});this.s.logs=this.s.logs.slice(0,160);}
- say(a,intent,slots={}){if(!a||!a.alive)return;const voice=D.identity.voices.find(v=>v.id===a.voice)||D.identity.voices[0];let text=this.pick(voice.templates[intent]||['{fact}']);const values={item:'補給',quantity:'一些',terms:'可用物資',reason:'我得先顧好自己的行程',fact:'仍在公路上',task:'共同探索',...slots};text=text.replace(/\{(\w+)\}/g,(_,k)=>String(values[k]??''));this.s.messages.unshift({id:++this.s.serial,actor:a.id,name:a.name,text,time:this.s.minute,channel:'region'});this.s.messages=this.s.messages.slice(0,160);}
+ say(a,intent,slots={}){if(!a?.alive)return false;if(this.night&&a.action==='休息'&&['need','offer','status','invite'].includes(intent))return false;const voice=D.identity.voices.find(v=>v.id===a.voice)||D.identity.voices[0],values={item:'補給',quantity:'一些',terms:'可用物資',reason:'我得先顧好自己的行程',fact:'仍在公路上',task:'共同探索',...slots};const choices=(voice.templates[intent]||['{fact}']).map(t=>t.replace(/\{(\w+)\}/g,(_,k)=>String(values[k]??''))).filter(t=>!this.s.messages.slice(0,48).some(m=>m.text===t&&this.s.minute-m.time<720)&&!(a.chatRecent||[]).includes(t));if(!choices.length)return false;const text=this.pick(choices);(a.chatRecent??=[]).push(text);a.chatRecent=a.chatRecent.slice(-12);this.s.messages.unshift({id:++this.s.serial,actor:a.id,name:a.name,text,time:this.s.minute,channel:'region'});this.s.messages=this.s.messages.slice(0,160);return true;}
+ ambientTopic(a){if(a.lastAttack!==undefined&&this.s.minute-a.lastAttack<=90)return 'attack';if(a.water<35)return 'thirst';if(a.food<35)return 'hunger';if(this.day===1&&this.s.minute<180)return 'arrival';if(this.night)return 'night';if(this.s.weather.s>=40)return 'weather';if(this.day>1&&this.s.minute%1440<120)return 'dawn';return 'idle';}
+ ambient(a,topic=this.ambientTopic(a),{opening=false}={}){if(!a?.alive||!Dialogue[a.personality]?.[topic])return false;const now=this.s.minute,initial=opening&&now===0,emergency=topic==='attack'||(topic==='thirst'&&a.water<20)||(topic==='hunger'&&a.food<20);if(topic!==this.ambientTopic(a)&&!(initial&&topic==='arrival'))return false;if(this.night&&a.action==='休息'&&!emergency)return false;const interval=emergency?(this.night?60:20):this.night?180:30,personInterval=emergency?(this.night?180:90):this.night?480:180;const chat=this.s.chatState||{last:-99999,recent:[],speakers:[]};if(!initial&&(now-chat.last<interval||now-(a.lastAmbient??-99999)<personInterval||now-(a.chatTopics?.[topic]??-99999)<(emergency?180:360)))return false;const choices=Dialogue[a.personality][topic].map(t=>t.replace(/\{weather\}/g,this.s.weather.name)).filter(t=>!chat.recent.includes(t)&&!(a.chatRecent||[]).includes(t));if(!choices.length||!this.say(a,'ambient',{fact:this.pick(choices)}))return false;this.s.messages[0].topic=topic;a.lastAmbient=now;(a.chatTopics??={})[topic]=now;chat.last=now;chat.recent.push(this.s.messages[0].text);chat.recent=chat.recent.slice(-64);chat.speakers.push(a.id);chat.speakers=chat.speakers.slice(-8);this.s.chatState=chat;return true;}
+ ambientChatter(){if(!this.roll(this.night?.12:.85))return;const eligible=this.s.actors.slice(1).filter(a=>a.alive&&(!this.night||a.action!=='休息'||a.water<20||a.food<20)),fresh=eligible.filter(a=>!(this.s.chatState?.speakers||[]).includes(a.id)),peers=fresh.length?fresh:eligible;if(!peers.length)return;const urgent=peers.filter(a=>['attack','thirst','hunger'].includes(this.ambientTopic(a)));this.ambient(this.pick(urgent.length&&this.roll(.65)?urgent:peers));}
+
  relation(a,b){if(!a.rels[b])a.rels[b]={like:0,trust:30,debt:0};return a.rels[b];}
  bond(a,b,like,trust=like/2){const r=this.relation(a,b);r.like=clamp(r.like+like,-100,100);r.trust=clamp(r.trust+trust);}
  kill(a,reason){if(!a.alive)return;a.alive=false;a.reason=reason;this.expireRequests();this.s.listings=this.s.listings.filter(l=>l.seller!==a.id);this.log(a.id==='P'?'你沒能走到公路盡頭。'+reason:a.name+' 死亡：'+reason,'death');if(a.id==='P'){this.s.status='dead';this.s.running=false;this.s.work=null;this.s.prompt=null;}else if(this.s.messages.length<155)this.s.messages.unshift({id:++this.s.serial,actor:'central',name:'中央系統',text:`${a.name} 已失去生命訊號。原因：${reason}`,time:this.s.minute,channel:'system'});}
@@ -153,7 +234,7 @@ class Game{
   if(opts.system!==undefined&&opts.test)s.system={id:opts.system,xp:0,used:0,points:1,signed:false};
   else if(game.roll(.01))s.system={id:Math.floor(game.random()*18),xp:0,used:0,points:1,signed:false};
   game.generateRoute();game.refreshMarket();game.log('你被帶入第 07 號公路空間。綁定載具：'+game.spec().name+'。','system');game.log('今日要求 60 公里。每日 06:00 未達標或確認逆行，中央系統將抹殺你。','system');if(s.system)game.log('稀有覺醒：'+D.systems[s.system.id]+'系統。','rare');
-  for(const a of game.s.actors.slice(1,7))game.say(a,'status',{fact:game.pick(['剛確認自己的載具','先找水和食物','準備在天黑前達標','已把區域頻道打開'])});
+  for(const a of game.s.actors.slice(1,10))game.ambient(a,'arrival',{opening:true});
   return game;
  }
  level(){return !this.s.system?0:this.s.system.xp>=600&&this.day>=10?3:this.s.system.xp>=200&&this.day>=4?2:1;}
@@ -224,7 +305,7 @@ class Game{
  hourly(){const p=this.player;this.autoNpcTrade();if(this.s.status!=='playing')return;
   if(this.night){let risk=this.day<=3?.025:this.day<=7?.05:.075;const profile=this.spec().profile;risk+=profile==='military'?.07:profile==='special'?.03:0;risk-=(p.mods.stealth||0)*.02;if(this.roll(Math.max(.01,risk))&&!this.s.prompt){this.s.running=false;this.s.prompt={kind:'combat',enemy:this.pick(['遊蕩者','撞擊獸','爬行者','群聚獸']),hp:25+this.day*2,attack:5+this.day*.55};this.log('夜間出現不明動靜。','warning');}}
   if(p.mods.solar&&!this.night&&this.s.weather.type==='none'&&this.spec().energy==='電力')p.energy=Math.min(this.spec().tankOrBatteryCapacity,p.energy+.6);
-  const peers=this.s.actors.slice(1).filter(a=>a.alive);if(peers.length&&this.roll(.6)){const a=this.pick(peers);if(a.water<35)this.say(a,'need',{item:'飲用水',quantity:'一瓶',terms:'多餘材料'});else if(a.energy<1&&this.spec(a).energy!=='人力')this.say(a,'need',{item:this.spec(a).energy,quantity:'2 單位',terms:'食物或零件'});else this.say(a,'status',{fact:this.pick([`今日已走 ${Math.floor(a.daily)} 公里`,`正在${a.action}`,`準備應對${this.s.weather.name}`])});}
+  this.ambientChatter();
   this.socialStep();if(this.s.lastHour%4===0)this.refreshMarket();
  }
  npcStep(dt){for(const a of this.s.actors.slice(1)){if(!a.alive)continue;const v=this.spec(a);let moving=false;a.action='整理物資';
@@ -237,10 +318,10 @@ class Game{
    if(v.energy!=='人力'&&a.energy<.1&&!moving){a.action='尋找能源';if(this.roll(.32))this.add(a,this.fuelId(a),Math.ceil(v.energyPer100Km*.35));}
    this.consume(a,dt,moving);if(this.s.weather.s>=40&&!(a.mods[this.s.weather.type]>=25)&&a.mats.cloth>=3&&a.mats.plastic>=3){a.mats.cloth-=3;a.mats.plastic-=3;a.mods[this.s.weather.type]=25;a.action='安裝天氣防護';}if(a.tire<40&&a.mats.rubber>=2){a.mats.rubber-=2;a.tire=clamp(a.tire+30);}if(a.condition<50&&a.mats.metal>=3){a.mats.metal-=3;a.condition=clamp(a.condition+20);}
    if(a.tier<5&&this.day>=[1,4,10,18][a.tier-1]&&a.scavenge>4*a.tier&&this.roll(.08)){const cost=this.spec(a).upgradeCost,keys={'金屬':'metal','零件':'parts','橡膠':'rubber','電路':'circuit','晉階核心':'core'};if(Object.entries(keys).every(([key,k])=>(a.mats[k]||0)>=(cost[key]||0))){for(const [key,k]of Object.entries(keys))a.mats[k]-=cost[key]||0;a.tier++;a.armor=this.spec(a).armorMax*a.condition/100;a.action='晉階';}}
-   if(this.night&&this.roll(.018)){const damage=4+this.day*.6;if(a.armor>damage)a.armor-=damage;else{a.hp-=damage; a.san-=2;}}
+   if(this.night&&this.roll(.018)){a.lastAttack=this.s.minute;const damage=4+this.day*.6;if(a.armor>damage)a.armor-=damage;else{a.hp-=damage; a.san-=2;}if(a.hp>0)this.ambient(a,'attack');}
    if(a.hp<=0)this.kill(a,'傷病或夜間襲擊');
   }}
- socialStep(){const alive=this.s.actors.slice(1).filter(a=>a.alive);if(alive.length<2)return;for(let i=0;i<2;i++){const a=this.pick(alive), peers=alive.filter(b=>b!==a&&(b.group===a.group||this.relation(a,b.id).like>15));if(!peers.length)continue;const b=this.pick(peers);let transferred=false;
+ socialStep(){const alive=this.s.actors.slice(1).filter(a=>a.alive&&(!this.night||a.action!=='休息'));if(alive.length<2)return;for(let i=0;i<2;i++){const a=this.pick(alive), peers=alive.filter(b=>b!==a&&(b.group===a.group||this.relation(a,b.id).like>15));if(!peers.length)continue;const b=this.pick(peers);let transferred=false;
    if(a.personality==='互助'||this.relation(a,b.id).trust>40){for(const kind of ['food','water']){if(b[kind]<35){const item=Object.keys(a.inv).find(id=>ITEMS[id].kind===kind&&a.inv[id]>1);if(item&&this.add(b,item)){this.remove(a,item);this.bond(b,a.id,10,6);this.relation(b,a.id).debt++;transferred=true;}}}}
    if(transferred&&this.roll(.5))this.say(b,'thanks');else if(this.roll(.15)){this.bond(a,b.id,-5,-2);if(this.roll(.3))this.log(a.name+' 與 '+b.name+' 因補給分配發生爭執。','social');}
   }
@@ -297,7 +378,7 @@ class Game{
   for(const a of this.s.actors){if(!a.alive)continue;if(a.daily+1e-5<oldQuota)this.kill(a,'未完成每日 '+oldQuota+' 公里要求');else{a.credits+=10;if(completedDay%3===0)a.mats.core++;if(a.id==='P'){this.log('第 '+completedDay+' 天存活，完成 '+Math.floor(a.daily)+' 公里。生存券 +10。','system');}a.daily=0;}}
   if(this.s.status!=='playing')return;
   if(completedDay>=30){this.s.status='won';this.s.running=false;this.s.prompt=null;this.s.work=null;this.log('第 30 天結算完成。你活下來了。','rare');return;}
-  this.s.weather=clone(this.weatherFor(completedDay+1));this.s.forecast=clone(this.weatherFor(completedDay+2));this.s.dayStats={};if(this.s.system){this.s.system.used=0;this.s.system.signed=false;this.s.system.points=Math.min(7,this.s.system.points+1);}for(const a of this.s.actors)if(a.alive){a.mats.metal=(a.mats.metal||0)+2;a.mats.parts=(a.mats.parts||0)+1;}
+  this.s.weather=clone(this.weatherFor(completedDay+1));this.s.forecast=clone(this.weatherFor(completedDay+2));this.s.dayStats={};if(this.s.chatState)this.s.chatState.recent=[];for(const a of this.s.actors)a.chatRecent=[];if(this.s.system){this.s.system.used=0;this.s.system.signed=false;this.s.system.points=Math.min(7,this.s.system.points+1);}for(const a of this.s.actors)if(a.alive){a.mats.metal=(a.mats.metal||0)+2;a.mats.parts=(a.mats.parts||0)+1;}
   this.s.running=false;this.s.prompt={kind:'day',completed:completedDay};this.log('新的一天：'+this.s.weather.name+'。今日要求 '+this.quota+' 公里。','system');
  }
  mission(){const pr=this.s.prompt;if(pr?.kind!=='road')return {ok:false,text:'此處沒有任務。'};if((this.player.mats.metal||0)<6)return {ok:false,text:'合作任務需要金屬 6。'};const peers=this.s.actors.slice(1).filter(a=>a.alive).sort((a,b)=>this.relation(b,'P').trust-this.relation(a,'P').trust).slice(0,3);if(this.s.work)return {ok:false,text:'請先完成目前工作。'};this.player.mats.metal-=6;this.s.prompt=null;const contract=!!this.player.mods.contract;delete this.player.mods.contract;return this.work('mission','共同修復便道',120,{peers:peers.map(a=>a.id),contract});}
@@ -370,7 +451,7 @@ function showPrompt(){const pr=game.s.prompt;if(!pr)return;pane='event';
 }
 function choice(title,desc,action,arg='',danger=false){return `<button class="choice ${danger?'danger':''}" data-action="${action}" data-arg="${esc(arg)}"><b>${title}</b><small>${desc}</small></button>`;}
 function showLoot(){pane='loot';const loot=game.s.loot,rows=game.s.ground||[];openModal(loot.title,`<p>搜索完成。先選擇要帶走的物資；未拿取的物品會在離開後遺失。工程材料不占格，也由你決定是否拿取。</p><div class="modal-note">背包 ${game.used()} / ${game.capacity()} 格 · 剩餘 ${game.capacity()-game.used()} 格${!loot.choiceVersion?'<br>舊版存檔中已自動取得的物品仍在背包；以下只列尚未取得的物品。':''}</div><div class="item-grid">${rows.map(x=>{const it=ITEMS[x.id];return `<div class="item-card"><span class="item-count">×${x.q}</span><h4>${esc(it.name)}</h4><p>${kindName[it.kind]} · ${it.kind==='material'?'工程帳本，不占格':'每格最多 '+it.stack+' 個'}</p><p>${esc(itemEffect(it))}</p><p>目前持有 ${it.kind==='material'?(game.player.mats[it.material]||0):(game.player.inv[x.id]||0)}</p>${actionButton('拿取 1','takeLoot',x.id+':1')}${x.q>1?actionButton('拿取全部 '+x.q,'takeLoot',x.id+':'+x.q):''}</div>`;}).join('')||'<div class="empty">現場物資已全部拿取。</div>'}</div>${loot.taken?.length?'<div class="modal-note">本次已拿取：'+loot.taken.map(x=>esc(ITEMS[x.id].name)+' ×'+x.q).join('、')+'</div>':''}<div class="split" style="margin-top:16px">${actionButton('整理背包／裝備','openBagFromLoot')}${actionButton(rows.length?'確認離開（尚有 '+rows.length+' 種物品）':'完成，回到道路 →','lootDone','','primary')}</div>`,'CHOOSE YOUR SUPPLIES',false);}
-function openPane(name){if(!game)return;if(game.s.prompt||game.s.loot){toast('先完成眼前的事件決策。');return;}game.pause();pane=name;if(name==='bag')bag();if(name==='craft')craft();if(name==='market')market();if(name==='society')society();if(name==='system')systemPane();if(name==='journal')openModal('旅途紀錄',game.s.logs.map(logHTML).join(''),'JOURNEY LOG');if(name==='vehicle')vehicle();render();}
+function openPane(name){if(!game)return;if(game.s.prompt||game.s.loot){toast('先完成眼前的事件決策。');return;}game.pause();pane=name;if(name==='bag')bag();if(name==='craft')craft();if(name==='market')market();if(name==='society')society();if(name==='channel')channel();if(name==='system')systemPane();if(name==='journal')openModal('旅途紀錄',game.s.logs.map(logHTML).join(''),'JOURNEY LOG');if(name==='vehicle')vehicle();render();}
 const equipmentNames={head:'頭部',face:'面部',eyes:'眼部',body:'身體',feet:'足部',weapon:'武器'};
 const kindName={food:'食物',water:'飲水',fuel:'能源',med:'醫療',tool:'工具',weapon:'武器',ammo:'彈藥',gear:'防護',material:'材料'};
 function itemEffect(it){return it.food?'飽食 +'+it.food:it.water?'水分 +'+it.water:it.kind==='fuel'?it.energy+' +'+it.amount:it.kind==='med'?'健康 +'+it.heal+' · '+({bleed:'止血',infection:'感染處理',pain:'止痛',sanity:'理智恢復',health:'營養恢復',stamina:'精力恢復',sleep:'睡眠調理'}[it.effect]||'治療'):it.attack?'戰力 +'+it.attack:it.protection?(it.weather==='all'?'全天候防護':({雨:'防雨',冷:'保暖',熱:'隔熱',塵:'防塵',酸:'抗酸'}[it.weather]||'防護'))+' +'+it.protection:it.search?'搜索工具 · 留在背包備用':'可用物資';}
@@ -387,7 +468,8 @@ function giftForm(id){pane='gift:'+id;const a=game.s.actors.find(a=>a.id===id),s
 function askOptions(id){openModal('向求生者請求支援',`<p>選擇需要的種類；對方依個性、關係與餘裕庫存決定是否援助。同一位 NPC 每兩個遊戲小時可詢問一次。</p><div class="choice-grid">${[['water','飲水'],['food','食物'],['fuel','能源'],['med','醫療用品'],['material','工程材料']].map(([kind,name])=>choice('請求'+name,'只會提供此類物資；也可能拒絕。','askKind',id+':'+kind)).join('')}</div>${actionButton('返回對方資料','npc',id)}`,'ASK FOR HELP');}
 
 function relationLabel(r){return r.like< -30?'敵對':r.trust>65?'信任':r.like>15?'友好':r.like< -5?'戒備':'陌生';}
-function society(){const a=game.s.actors.slice(1);let list=a.filter(n=>npcFilter==='all'||npcFilter==='alive'&&n.alive||npcFilter==='dead'&&!n.alive||npcFilter==='friends'&&n.friends);openModal('求生者與區域社會',`<div class="modal-note">99 名 NPC，各自持有真實物資、綁定載具與人際關係。普通道路彼此獨立；只能在交會時見面或掠奪。</div><div class="tabs">${[['all','全部 99 人'],['alive','存活'],['friends','追蹤好友'],['dead','死亡紀錄']].map(([id,n])=>`<button class="${npcFilter===id?'active':''}" data-action="npcFilter" data-arg="${id}">${n}</button>`).join('')}</div><div class="npc-grid">${list.map(n=>`<div class="npc ${n.alive?'':'dead-npc'}" data-action="npc" data-arg="${n.id}" role="button" tabindex="0"><span class="group">${GROUPS[n.group]}</span><b>${esc(n.name)} ${n.friends?'☆':''}</b><small>${n.alive?esc(n.action):'† '+esc(n.reason)} · ${esc(game.spec(n).name)}</small><small>${n.alive?'今日 '+Math.floor(n.daily)+' km · ':''}${relationLabel(game.relation(n,'P'))}</small></div>`).join('')}</div><h3 class="subhead">區域頻道 <span class="tiny">依事件觸發的真實訊息</span></h3>${game.s.messages.slice(0,40).map(m=>`<div class="chat-line"><b>${esc(m.name)} <small>${time(m.time)}</small></b><p>${esc(m.text)}</p></div>`).join('')}`,'100 LIVES / ONE REGION');}
+function society(){const a=game.s.actors.slice(1);let list=a.filter(n=>npcFilter==='all'||npcFilter==='alive'&&n.alive||npcFilter==='dead'&&!n.alive||npcFilter==='friends'&&n.friends);openModal('求生者與區域社會',`<div class="modal-note">99 名 NPC，各自持有真實物資、綁定載具與人際關係。普通道路彼此獨立；只能在交會時見面或掠奪。</div><div class="tabs">${[['all','全部 99 人'],['alive','存活'],['friends','追蹤好友'],['dead','死亡紀錄']].map(([id,n])=>`<button class="${npcFilter===id?'active':''}" data-action="npcFilter" data-arg="${id}">${n}</button>`).join('')}</div><div class="npc-grid">${list.map(n=>`<div class="npc ${n.alive?'':'dead-npc'}" data-action="npc" data-arg="${n.id}" role="button" tabindex="0"><span class="group">${GROUPS[n.group]}</span><b>${esc(n.name)} ${n.friends?'☆':''}</b><small>${n.alive?esc(n.action):'† '+esc(n.reason)} · ${esc(game.spec(n).name)}</small><small>${n.alive?'今日 '+Math.floor(n.daily)+' km · ':''}${relationLabel(game.relation(n,'P'))}</small></div>`).join('')}</div>`,'100 LIVES / ONE REGION');}
+function channel(){openModal('區域頻道',`<div class="modal-note">${game.night?'夜間通訊較少；休息者保持安靜，緊急求助仍可能出現。':'白天有人閒聊，也有人只想確認自己不是孤身一人。'}<br>打開頻道時遊戲暫停；關閉後按前進或繼續工作，才會產生新訊息。</div><div class="channel-feed">${game.s.messages.map(m=>`<div class="chat-line"><b>${esc(m.name)} <small>DAY ${Math.floor(m.time/1440)+1} · ${time(m.time)}${m.channel==='trade'?' · 交易':m.channel==='system'?' · 中央廣播':''}</small></b><p>${esc(m.text)}</p></div>`).join('')||'<div class="empty">頻道暫時安靜。</div>'}</div>`,'REGIONAL CHANNEL');}
 function npc(id){const a=game.s.actors.find(a=>a.id===id);if(!a)return;pane='npc:'+id;const r=game.relation(a,'P'),voice=D.identity.voices.find(v=>v.id===a.voice);const allies=Object.entries(a.rels).filter(([k,v])=>k!=='P'&&v.like>15).slice(0,4).map(([k])=>game.s.actors.find(a=>a.id===k)?.name).filter(Boolean);openModal(a.name,`<div class="split"><span class="badge">${a.gender==='female'?'女性':'男性'}</span><span class="badge">${voice?.name}</span><span class="badge">${GROUPS[a.group]}</span></div><p>${esc(a.personality)}的求生者，目前${a.alive?esc(a.action):'已死亡'}。載具為 ${esc(game.spec(a).name)}，同樣不能更換車系。</p><div class="modal-note">關係：${relationLabel(r)} · 好感 ${Math.floor(r.like)} · 信任 ${Math.floor(r.trust)}<br>已知伙伴：${allies.map(esc).join('、')||'尚未公開'}<br>${a.alive?'今日里程 '+Math.floor(a.daily)+' 公里':esc(a.reason)}</div><p class="tiny">原型為方便試玩顯示關係數值；庫存與完整生存狀態仍隱藏。</p><h3 class="subhead">對方的私人報價</h3><div class="item-grid">${game.privateOffers(a.id).map(o=>`<div class="item-card"><h4>${esc(ITEMS[o.item].name)}</h4><p>${o.price} 券 · 可售餘裕物資</p>${actionButton("購買","privateBuy",a.id+":"+o.item)}</div>`).join("")||'<div class="empty">目前沒有願意出售的餘裕物資。</div>'}</div><div class="choice-grid">${a.alive?choice(a.friends?'取消追蹤':'追蹤為好友','方便查看近況，不強制對方信任。','friend',id)+choice('贈送物資','從背包或工程帳本選擇物資與數量。','giftForm',id)+choice('請求物資支援','選擇飲水、食物、能源、醫療或材料；對方可能拒絕。','askOptions',id):''}${choice('回到求生者名冊','查看其他人的進度。','pane','society')}</div>`,'SURVIVOR DOSSIER');}
 function vehicle(){const p=game.player,f=D.vehicles.families.find(f=>f.id===p.family),v=game.spec(),status=game.upgradeStatus();openModal('永久綁定 · '+v.name,`<p>${esc(f.signature)}。你的車系是 ${p.family}，不能換車、轉系或奪取別人的載具。</p>${f.names.map((n,i)=>`<div class="recipe"><div><h4>T${i+1} ${esc(n)}</h4><p>${i+1===p.tier?'目前載具':i+1<p.tier?'已完成晉階':'尚未晉階'}</p></div><span class="badge">${i+1===p.tier?'CURRENT':i+1<p.tier?'✓':'LOCKED'}</span></div>`).join('')}${p.tier<5?`<h3 class="subhead">下一階所需資源</h3>${costHTML(status.cost)}<div class="modal-note"><div class="${game.day>=status.unlock?'green':'cost-missing'}">${game.day>=status.unlock?'✓':'尚缺'} 日期：目前第 ${game.day} 天 / 需第 ${status.unlock} 天</div><div class="${p.condition>=50?'green':'cost-missing'}">${p.condition>=50?'✓':'尚缺'} 車況：目前 ${Math.floor(p.condition)} / 至少 50${p.condition<50?'，需修復 '+Math.ceil(50-p.condition):''}</div><div>${game.s.work?'尚有工作未完成':'✓ 無進行中的工作'}</div><p>耗時 ${v.upgradeCost['工時分鐘']} 遊戲分鐘。原型以生存日期代替車系試煉與專用圖紙。</p></div><p class="${status.ok?'green':'cost-missing'}">${esc(status.text)}</p><button class="primary full" data-action="upgrade" ${status.ok?'':'disabled'}>晉階為 ${esc(f.names[p.tier])} →</button>`:'<div class="modal-note">已達此車系最高階。</div>'}<p class="tiny">車況歸零仍可修復原車。可相容改裝，不可解除綁定。</p>`,'BOUND VEHICLE');}
 function systemPane(){if(!game.s.system){openModal('本局未覺醒特殊系統',`<div class="journey-illustration">✧</div><p>每次新局只有 1% 機率覺醒一種特殊系統。這次，你必須依靠自己的決策與其他求生者活下來。</p><div class="modal-note">一般玩法不需要系統。重新讀檔不會重新抽取。</div><p class="tiny">目前 18 種能力已有原型效果，與完整設計的部分加工流程不同，測試說明可在選單查看。</p>`,'NO EXTRA SIGNAL');return;}
