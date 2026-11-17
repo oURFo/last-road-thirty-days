@@ -1,7 +1,7 @@
 (function(root){
 'use strict';
 const D=root.GameData||(typeof require==='function'?require('./data.js'):null);if(D.expansion)return;
-D.expansion={version:1,weathers:[
+D.expansion={version:1,moduleDrops:{quick:.01,deep:.03,public:.15},weathers:[
 {id:'rain',name:'暴雨',type:'rain',gear:'雨',effect:'曝露、濕滑',module:'seal'},
 {id:'cold',name:'極寒',type:'cold',gear:'冷',effect:'曝露、凍傷',module:'climate'},
 {id:'heat',name:'炎熱',type:'heat',gear:'熱',effect:'曝露、失水',module:'climate'},
